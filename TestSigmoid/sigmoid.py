@@ -55,39 +55,39 @@ def train(X, y, input_size, hidden_size, output_size, epochs, learning_rate):
     weights_1, bias_1, weights_2, bias_2 = initialize_parameters(input_size, hidden_size, output_size)
     
     for epoch in range(epochs):
-        # 前向传播
+        # forward propagation
         z1, a1, z2, a2 = forward_propagation(X, weights_1, bias_1, weights_2, bias_2)
         
-        # 计算损失
+        # loss calculation
         current_loss = loss(y, a2)
         if epoch % 100 == 0:
             print(f"Epoch {epoch}, Loss: {current_loss}")
         
-        # 反向传播 - 修复参数列表
+        # backpropagate
         weights_1, bias_1, weights_2, bias_2 = backward_propagation(
             X, y, z1, a1, z2, a2, weights_1, weights_2, bias_1, bias_2, learning_rate
         )
     
     return weights_1, bias_1, weights_2, bias_2
 
-# 测试数据
+# test data
 np.random.seed(42)
-X = np.random.rand(100, 2)  # 100 个样本，每个有 2 个特征
+X = np.random.rand(100, 2)  # 100 data，each with 2 characteristics
 y = np.array([[1 if x1 + x2 > 1 else 0 for x1, x2 in X]]).T  # 简单的二分类任务
 
-# 超参数
-input_size = 2  # 输入特征数量
-hidden_size = 4  # 隐藏层神经元数量
-output_size = 1  # 输出层神经元数量
-epochs = 1000  # 训练轮数
-learning_rate = 0.1  # 学习率
+# meta-parameter
+input_size = 2  # characteristics number
+hidden_size = 4  
+output_size = 1  
+epochs = 1000  
+learning_rate = 0.1 
 
-# 训练模型
+# train
 trained_weights_1, trained_bias_1, trained_weights_2, trained_bias_2 = train(
     X, y, input_size, hidden_size, output_size, epochs, learning_rate
 )
 
-# 测试模型
+# test
 _, _, _, predictions = forward_propagation(X, trained_weights_1, trained_bias_1, trained_weights_2, trained_bias_2)
 predictions = (predictions > 0.5).astype(int)
 accuracy = np.mean(predictions == y)
