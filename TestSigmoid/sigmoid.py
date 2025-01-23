@@ -43,7 +43,7 @@ def backward_propagation(X, y, z1, a1, z2, a2, weights_1, weights_2, bias_1, bia
     d_weights_1 = np.dot(X.T, hidden_loss_grad)
     d_bias_1 = np.sum(hidden_loss_grad, axis=0, keepdims=True)
 
-    # iterate weights and biased
+    # iterate weights and biased !! 
     weights_1 -= learning_rate * d_weights_1
     bias_1 -= learning_rate * d_bias_1
     weights_2 -= learning_rate * d_weights_2
