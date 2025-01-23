@@ -31,8 +31,9 @@ def reducer(word_pairs):
 # generate_testfile()
 with open("test_input.txt", 'r') as input_file:
     mapped_data = mapper(input_file)
-    reduced_data = reducer(mapped_data)
+    reduced_data = list(reducer(mapped_data))
 
     # print final data
-    for word, total in list(reduced_data):
-        print(f"{word}: {total}")
+    with open("test_output.txt", 'w') as output_file:
+        for word, total in reduced_data:
+            output_file.write(f"{word}: {total}\n")
