@@ -30,4 +30,4 @@ graph = {
 }
 start_node = 'A'
 shortest_paths = dijkstra(graph, start_node)
-print("从起点 A 到其他节点的最短路径：", shortest_paths)
+print("Shortest route from A to other route：", shortest_paths)
