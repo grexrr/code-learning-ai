@@ -1,61 +1,102 @@
-def map(vertex, edges, current_distance):
-    data = {}
-    data[vertex] = (vertex, current_distance[vertex])
+from collections import defaultdict
+def _map(vertex, edges, curr_distances):
+    emit = []
+    emit.append((vertex, (vertex, curr_distances[vertex])))
 
     for neighbor, weight in edges.items():
-        if current_distance != float('inf'):
-            new_distance = current_distance[vertex] + weight
-            data[neighbor] = (vertex, new_distance)
-    return data
+        if curr_distances[vertex] != float('inf'):
+            new_distances = curr_distances[vertex] + weight
+            emit.append((neighbor, (vertex, new_distances)))
+    return emit
 
-def reduce(key, values):
+# def _reduce(key, values):
+#     min_distances = float('inf')
+#     source_vertex = None
+
+#     for src, dist in values:
+#         if src < min_distances:
+#             min_distances = dist
+#             source_vertex = src
+    
+#     return (key, (source_vertex, min_distances))
+
+def _reduce(values):
+    """Reducer function that finds minimum distances to each vertex"""
     min_distance = float('inf')
-    predecessor = None
 
-    for value in values:
-        vertex, distance = value
-        if distance < min_distance:
-            min_distance = distance
-            predecessor = vertex
-    return (key, (predecessor, min_distance))
+    for src, dist in values:
+        if dist < min_distance:
+            min_distance = dist
 
+    return min_distance
 
-graph = {
-    'A': {'B': 1, 'C': 4},
-    'B': {'A': 1, 'C': 2, 'D': 5},
-    'C': {'A': 4, 'B': 2, 'D': 1},
-    'D': {'B': 5, 'C': 1}
-}
+def _map_reduce(graph, current_distances):
+    mapped_data = []
+    for v, e in graph.items():
+        mapped_data.extend(_map(v, e, current_distances))
+    
+    group_data = defaultdict(list)
+    for v, dist in mapped_data:
+        group_data[v].append(dist)
 
-current_distance = {
-    'A': 0,
-    'B': float('inf'),
-    'C': float('inf'),
-    'D': float('inf')
-}
+    # example
+    # grouped_data = {
+    #     'A': [(A, 0)],
+    #     'B': [(A, 4), (C, 3)],
+    #     'C': [(A, 2)],
+    #     'D': [(B, 9), (C, 10)],
+    #     'E': [(C, 12)]
+    # }
 
-map_results = []
-for vertex, edges in graph.items():
-    map_results.append(map(vertex, edges, current_distance))
+    new_distances = {}
+    for key, values in group_data.items():
+        distance = _reduce(values)
+        new_distances[key] = distance
 
+    return new_distances
 
-shuffled_data = {}
-for result in map_results:
-    for key, value in result.items():
-        if key not in shuffled_data:
-            shuffled_data[key] = []
-        shuffled_data[key].append(value)
+    
 
-new_distances = {}
-for key, values in shuffled_data.items():
-    new_distances[key] = reduce(key, values)
+def iterative_mapreduce_dijkstra(graph, source, max_iterations=None):
+    """Implementation of Dijkstra's algorithm using iterative MapReduce"""
+    if max_iterations is None:
+        max_iterations = len(graph) - 1  # Maximum path length in the graph
 
-for key, (predecessor, min_distance) in new_distances.items():
-    current_distance[key] = min_distance
+    # Initialize distancess
+    distances = {v: float('inf') for v in graph}
+    distances[source] = 0
 
-print("当前最短路径信息:")
-for node, distance in current_distance.items():
-    print(f"节点 {node}: 距离 {distance}")
+    iteration = 0
+    not_converge = True
+    while not_converge and iteration < max_iterations:
+        old_distances = distances.copy()
+        distances = _map_reduce(graph, distances)
 
+        not_converge = any(old_distances[v] != distances[v] for v in distances)
+        iteration += 1
         
-            
+        print(f"\nIteration {iteration}:")
+        for vertex, dist in sorted(distances.items()):
+            print(f"{vertex}: {dist}")
+    
+    return distances, iteration
+
+def main():
+    # Example graph represented as adjacency list with weights
+    graph = {
+        'A': {'B': 4, 'C': 2},
+        'B': {'A': 4, 'C': 1, 'D': 5},
+        'C': {'A': 2, 'B': 1, 'D': 8, 'E': 10},
+        'D': {'B': 5, 'C': 8, 'E': 2},
+        'E': {'C': 10, 'D': 2}
+    }
+
+    source = 'A'
+    shortest_paths, num_iterations = iterative_mapreduce_dijkstra(graph, source)
+
+    print(f"\nFinal shortest paths from vertex {source} after {num_iterations} iterations:")
+    for vertex, distances in sorted(shortest_paths.items()):
+        print(f"{vertex}: {distances}")
+
+if __name__ == "__main__":
+    main()

@@ -1,32 +1,26 @@
 import heapq
-
 def dijkstra(graph, start):
-    shortest_distance = {node: float('inf') for node in graph}
-    shortest_distance[start] = 0
-    visited = set()   # all visited node
-    priority_queue = [(0, start)]
-
-    while priority_queue:
-        current_distance, current_node = heapq.heappop(priority_queue)
-
-        if current_node in visited:
+    res = {node: float('inf') for node in graph}
+    res[start] = 0
+    priority = [(0, start)]
+    while priority:
+        curr_dist, curr_node = heapq.heappop(priority)
+        if curr_dist > res[curr_node]:
             continue
-
-        visited.add(current_node)
-
-        for neighbor, weight in graph[current_node].items():
-            distance = current_distance + weight
-            if distance < shortest_distance[neighbor]:
-                shortest_distance[neighbor] = distance
-                heapq.heappush(priority_queue, (distance, neighbor))
-        
-    return shortest_distance
+        for neighbor, weight in graph[curr_node].items():
+            new_dist = res[curr_node] + weight
+            if new_dist < res[neighbor]:
+                res[neighbor] = new_dist
+                heapq.heappush(priority, (new_dist, neighbor))
+    return res
 
 graph = {
-    'A': {'B': 1, 'C': 4},
-    'B': {'A': 1, 'C': 2, 'D': 5},
-    'C': {'A': 4, 'B': 2, 'D': 1},
-    'D': {'B': 5, 'C': 1}
+    'A': {'B': 2, 'C': 4},
+    'B': {'C': 1, 'D': 7},
+    'C': {'E': 3},
+    'D': {'F': 1},
+    'E': {'D': 2, 'F': 5},
+    'F': {}
 }
 start_node = 'A'
 shortest_paths = dijkstra(graph, start_node)
