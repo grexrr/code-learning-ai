@@ -9,16 +9,6 @@ def _map(vertex, edges, curr_distances):
             emit.append((neighbor, (vertex, new_distances)))
     return emit
 
-# def _reduce(key, values):
-#     min_distances = float('inf')
-#     source_vertex = None
-
-#     for src, dist in values:
-#         if src < min_distances:
-#             min_distances = dist
-#             source_vertex = src
-    
-#     return (key, (source_vertex, min_distances))
 
 def _reduce(values):
     """Reducer function that finds minimum distances to each vertex"""
@@ -55,7 +45,6 @@ def _map_reduce(graph, current_distances):
 
     return new_distances
 
-    
 
 def iterative_mapreduce_dijkstra(graph, source, max_iterations=None):
     """Implementation of Dijkstra's algorithm using iterative MapReduce"""
@@ -67,12 +56,12 @@ def iterative_mapreduce_dijkstra(graph, source, max_iterations=None):
     distances[source] = 0
 
     iteration = 0
-    not_converge = True
-    while not_converge and iteration < max_iterations:
+    is_converge = False
+    while (not is_converge) and (iteration < max_iterations):
         old_distances = distances.copy()
         distances = _map_reduce(graph, distances)
 
-        not_converge = any(old_distances[v] != distances[v] for v in distances)
+        is_converge = all(old_distances[v] == distances[v] for v in distances)
         iteration += 1
         
         print(f"\nIteration {iteration}:")
