@@ -1,12 +1,9 @@
 from collections import defaultdict
 
-a = [("k", (3, 4)), ("m", (5, 3))]
+add = lambda x, y: x + y
 
-array = defaultdict(list)
-for k, v in a:
-    array[k]=(v)
+print(add(4, 6))
 
-print(array)
-
-
-
+numbers = [1, 3, 4, 2, 6]
+new_numbers = list(map(lambda x : 2 * x, numbers))
+print(new_numbers)

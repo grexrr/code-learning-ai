@@ -1,24 +1,21 @@
 from collections import defaultdict
-def _map(vertex, edges, curr_distances):
+
+def _map(curr_vertex, edges, curr_distances):
     emit = []
-    emit.append((vertex, (vertex, curr_distances[vertex])))
+    if curr_distances[curr_vertex] == float('inf'):
+        return [(curr_vertex, (curr_vertex, float('inf')))]
+
+    emit.append((curr_vertex, (curr_vertex, curr_distances[curr_vertex])))
 
     for neighbor, weight in edges.items():
-        if curr_distances[vertex] != float('inf'):
-            new_distances = curr_distances[vertex] + weight
-            emit.append((neighbor, (vertex, new_distances)))
+        new_distance = curr_distances[curr_vertex] + weight
+        emit.append((neighbor, (curr_vertex, new_distance)))
+
     return emit
 
-
-def _reduce(values):
+def _reduce(source_weight_pairs):
     """Reducer function that finds minimum distances to each vertex"""
-    min_distance = float('inf')
-
-    for src, dist in values:
-        if dist < min_distance:
-            min_distance = dist
-
-    return min_distance
+    return min(source_weight_pairs, key=lambda x: x[1])  
 
 def _map_reduce(graph, current_distances):
     mapped_data = []
@@ -29,29 +26,17 @@ def _map_reduce(graph, current_distances):
     for v, dist in mapped_data:
         group_data[v].append(dist)
 
-    # example
-    # grouped_data = {
-    #     'A': [(A, 0)],
-    #     'B': [(A, 4), (C, 3)],
-    #     'C': [(A, 2)],
-    #     'D': [(B, 9), (C, 10)],
-    #     'E': [(C, 12)]
-    # }
-
     new_distances = {}
-    for key, values in group_data.items():
-        distance = _reduce(values)
-        new_distances[key] = distance
-
+    for curr_node, source_weight_pairs in group_data.items():
+        source, min_dist = _reduce(source_weight_pairs)
+        new_distances[curr_node] = min_dist 
     return new_distances
-
 
 def iterative_mapreduce_dijkstra(graph, source, max_iterations=None):
     """Implementation of Dijkstra's algorithm using iterative MapReduce"""
     if max_iterations is None:
-        max_iterations = len(graph) - 1  # Maximum path length in the graph
+        max_iterations = len(graph) - 1 
 
-    # Initialize distancess
     distances = {v: float('inf') for v in graph}
     distances[source] = 0
 
@@ -71,13 +56,13 @@ def iterative_mapreduce_dijkstra(graph, source, max_iterations=None):
     return distances, iteration
 
 def main():
-    # Example graph represented as adjacency list with weights
     graph = {
-        'A': {'B': 4, 'C': 2},
+        'A': {'B': 4, 'C': 2, 'F': 3},
         'B': {'A': 4, 'C': 1, 'D': 5},
         'C': {'A': 2, 'B': 1, 'D': 8, 'E': 10},
         'D': {'B': 5, 'C': 8, 'E': 2},
-        'E': {'C': 10, 'D': 2}
+        'E': {'C': 10, 'D': 2},
+        'F': {'D': 5}
     }
 
     source = 'A'
