@@ -38,7 +38,7 @@ def _map_reduce(graph, curr_weight):
     print()
     print("Current Weight Values")
     for node, rank in new_weights.items():
-        print(f"{node}: {rank:.4f}")
+        print(f"{node}: {rank:.4f}") 
 
     return new_weights
 
@@ -64,17 +64,12 @@ def iterative_mapreduce_pagerank(graph, max_iteration=40):
     
 def main():
     graph = {
-        'A': ['B', 'C', 'D'],
-        'B': ['A', 'E', 'F'],
-        'C': ['A', 'D', 'G'],
-        'D': ['C', 'H'],
-        'E': ['B', 'F', 'I'],
-        'F': ['E', 'G'],
-        'G': ['C', 'H', 'J'],
-        'H': ['D', 'I'],
-        'I': ['E', 'H', 'J'],
-        'J': []  # `J` 是孤立节点，没有出链
-    }
+    'A': ['B', 'C'],
+    'B': ['C', 'D'],
+    'C': ['A'],
+    'D': ['A', 'C']
+}
+
     final_pagerank, iteration = iterative_mapreduce_pagerank(graph)
     print(f"{iteration} of iteration")
     print("final result:")
