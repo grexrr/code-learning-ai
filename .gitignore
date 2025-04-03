@@ -10,3 +10,8 @@ __pycache__/
 *$py.class
 *.so
 .Python
+
+image/
+images/
+model/
+models/
