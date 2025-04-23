@@ -1,8 +1,7 @@
-import torch
+DATABASE = 80
+ML = 85
+SCAILABLE = 71
+PROJECT = 73
+DEEPLEARNING = 60
 
-if torch.backends.mps.is_available():
-    mps_device = torch.device("mps")
-    x = torch.ones(1, device=mps_device)
-    print (x)
-else:
-    print ("MPS device not found.")
+print((73 * 6 + ML + 40 + DATABASE + PROJECT + SCAILABLE + DEEPLEARNING)/12)
